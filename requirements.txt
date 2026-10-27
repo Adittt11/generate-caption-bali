@@ -1,4 +1,10 @@
 ddgs
 requests
-Pillow
-google-genai
+Pillow>=10.0
+torch>=2.4
+transformers>=4.46,<5.0
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+sacrebleu>=2.4
+rouge-score>=0.1.2

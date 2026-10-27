@@ -20,6 +20,11 @@ __pycache__/
 **/*gemini*caption*.csv
 **/*qwen*caption*.csv
 
+# Local annotations, data splits, and trained model checkpoints
+/data/annotations.csv
+/data/splits/
+/outputs/
+
 # Existing destination repository rules
 *.o
 *.ali
