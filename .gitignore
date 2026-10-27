@@ -1,5 +1,25 @@
-# Object file
-*.o
+# Secrets
+.env
+**/.env
+.env.*
+!**/.env.example
 
-# Ada Library Information
+# Local Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.DS_Store
+
+# Downloaded image datasets and generated metadata/captions
+*.jpg
+*.jpeg
+*.png
+*.webp
+**/metadata.csv
+**/*gemini*caption*.csv
+**/*qwen*caption*.csv
+
+# Existing destination repository rules
+*.o
 *.ali
