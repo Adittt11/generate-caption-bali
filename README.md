@@ -108,6 +108,12 @@ Caption awal dapat dibuat langsung ke CSV. Model mengembalikan teks biasa; skrip
 python generate_caption/caption.py --annotations data/annotations_curated.csv
 ```
 
+Setiap caption juga diminta menyebut "Bali" atau unsur budaya Bali yang sesuai kategori gambar. Untuk membuat ulang semua caption dengan aturan itu, gunakan `--overwrite`; CSV sebelumnya dicadangkan di `data/backups/`. Jika proses terhenti karena kuota, jalankan kembali tanpa `--overwrite` agar gambar yang sudah selesai tidak diproses ulang.
+
+```bash
+python generate_caption/caption.py --annotations data/annotations_curated.csv --overwrite
+```
+
 Untuk mencoba satu gambar lebih dulu, gunakan `--limit 1`. Model default adalah `gemini-3.5-flash-lite`; ubah dengan `--gemini-model` bila diperlukan. Caption otomatis adalah draft: cocokkan dengan gambar, lalu ubah kolom `reviewed` menjadi `yes` setelah disetujui. Jangan mengarang lokasi, nama upacara, sejarah, atau makna simbol.
 
 Buat split train/validation/test berdasarkan gambar agar gambar yang sama tidak bocor ke beberapa split:

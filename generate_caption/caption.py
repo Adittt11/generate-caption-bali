@@ -2,8 +2,10 @@
 
 import argparse
 import csv
+from datetime import datetime
 import os
 import re
+import shutil
 import sys
 from pathlib import Path
 
@@ -93,12 +95,11 @@ def generate_gemini_caption(client, model_name, image_path, category):
     prompt = (
         "Buat tepat dua caption berbeda dalam Bahasa Indonesia untuk gambar ini. "
         f"Kategori dataset: {category}. Setiap caption satu kalimat, 10 sampai 15 kata. "
-        "Jelaskan hanya hal yang tampak. Jangan menebak asal Bali, lokasi, nama ritual, "
-        "makna, atau bahan jika tidak terlihat jelas. Jika unsur budaya Bali terlihat, "
-        "jelaskan unsur tersebut secara spesifik tanpa mengarang. Jawab hanya dengan dua "
+        "Setiap caption wajib mengaitkan gambar dengan Bali: sebut kata Bali atau unsur "
+        "budaya Bali yang sesuai kategori dan didukung gambar. Jelaskan hanya hal yang "
+        "tampak. Jangan menebak lokasi, nama ritual, makna, atau bahan. Jawab hanya dengan dua "
         "baris teks biasa, satu caption per baris. Jangan gunakan JSON, nomor, label, atau markdown. "
-        "Identifikasi kegiatan yang terlihat. Kaitkan dengan budaya Bali hanya jika didukung "
-        "bukti visual; jangan mengarang unsur Bali."
+        "Identifikasi kegiatan yang terlihat dan jangan mengarang unsur Bali."
     )
     with Image.open(image_path) as opened:
         image = opened.convert("RGB")
@@ -112,7 +113,7 @@ def generate_gemini_caption(client, model_name, image_path, category):
     return parse_plain_captions(response.text)
 
 
-def generate_annotations(annotations_path, model_name, limit=None):
+def generate_annotations(annotations_path, model_name, limit=None, overwrite=False):
     """Fill blank annotation rows with Gemini and save progress after each image."""
     try:
         from google import genai
@@ -133,6 +134,23 @@ def generate_annotations(annotations_path, model_name, limit=None):
     required = {"image_path", "caption", "category", "reviewed"}
     if not required.issubset(fields):
         raise SystemExit(f"Kolom CSV wajib: {', '.join(sorted(required))}")
+
+    if overwrite:
+        backup_dir = annotations_path.parent / "backups"
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        backup_path = backup_dir / f"{annotations_path.stem}_before_regenerate_{stamp}.csv"
+        shutil.copy2(annotations_path, backup_path)
+        for row in rows:
+            row["caption"] = ""
+            row["reviewed"] = "no"
+        temporary_path = annotations_path.with_suffix(annotations_path.suffix + ".tmp")
+        with temporary_path.open("w", newline="", encoding="utf-8-sig") as destination:
+            writer = csv.DictWriter(destination, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(rows)
+        temporary_path.replace(annotations_path)
+        print(f"Caption lama dicadangkan ke: {backup_path.relative_to(PROJECT_ROOT)}")
 
     grouped = {}
     for row in rows:
@@ -187,6 +205,10 @@ def main():
     parser.add_argument("--annotations", help="CSV anotasi untuk mengisi caption kosong dengan Gemini")
     parser.add_argument("--gemini-model", default=DEFAULT_GEMINI_MODEL)
     parser.add_argument("--limit", type=int, help="Batas gambar untuk menjalankan percobaan kecil")
+    parser.add_argument(
+        "--overwrite", action="store_true",
+        help="Kosongkan dan buat ulang semua caption; CSV lama dicadangkan dahulu.",
+    )
     args = parser.parse_args()
     if args.annotations:
         annotations_path = Path(args.annotations)
@@ -194,7 +216,7 @@ def main():
             annotations_path = PROJECT_ROOT / annotations_path
         if not annotations_path.is_file():
             raise SystemExit(f"CSV anotasi tidak ditemukan: {annotations_path}")
-        generate_annotations(annotations_path, args.gemini_model, args.limit)
+        generate_annotations(annotations_path, args.gemini_model, args.limit, args.overwrite)
         return
     if not args.image:
         parser.error("berikan path gambar atau gunakan --annotations untuk membuat caption dataset")
