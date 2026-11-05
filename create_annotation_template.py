@@ -11,7 +11,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Buat template anotasi manual dari folder gambar budaya Bali."
     )
-    parser.add_argument("--image-root", default="scraping_image")
+    parser.add_argument("--image-root", default="dataset/images")
     parser.add_argument("--output", default="data/annotations.csv")
     parser.add_argument("--captions-per-image", type=int, default=2)
     parser.add_argument(

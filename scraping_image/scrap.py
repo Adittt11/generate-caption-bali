@@ -17,7 +17,7 @@ import requests
 from PIL import Image, UnidentifiedImageError
 
 
-ROOT = Path(__file__).resolve().parent
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 API_URL = "https://commons.wikimedia.org/w/api.php"
 CATEGORIES = {
     "adat_bali": {
@@ -237,9 +237,9 @@ def search_commons(session, query, result_limit):
         time.sleep(2)
 
 
-def download_category(session, folder_name, limit, delay, min_width, min_height):
+def download_category(session, folder_name, limit, delay, min_width, min_height, output_root):
     settings = CATEGORIES[folder_name]
-    output_dir = ROOT / folder_name
+    output_dir = output_root / folder_name
     output_dir.mkdir(parents=True, exist_ok=True)
     rows, existing_names, hashes, next_id, image_file_count = load_existing(output_dir)
     existing_count = count_verified_rows(rows, settings["keywords"])
@@ -358,6 +358,7 @@ def main():
     parser.add_argument("--delay", type=float, default=0.5, help="Jeda antar-unduhan dalam detik")
     parser.add_argument("--min-width", type=int, default=MINIMUM_IMAGE_SIZE)
     parser.add_argument("--min-height", type=int, default=MINIMUM_IMAGE_SIZE)
+    parser.add_argument("--output-root", default="dataset/images", help="Folder induk dataset gambar")
     args = parser.parse_args()
     if args.limit < 1 or args.delay < 0:
         parser.error("--limit harus positif dan --delay tidak boleh negatif")
@@ -367,6 +368,7 @@ def main():
         print("Disarankan mengatur WIKIMEDIA_USER_AGENT dengan email atau URL kontak untuk mengurangi blokir API.")
     session = requests.Session()
     session.headers.update({"User-Agent": user_agent, "Accept-Encoding": "gzip"})
+    output_root = (PROJECT_ROOT / args.output_root).resolve()
     # Preserve the old no-argument workflow: scrape all six categories.
     if args.category:
         categories = {args.category: CATEGORIES[args.category]}
@@ -376,7 +378,7 @@ def main():
         try:
             download_category(
                 session, folder_name, args.limit, args.delay,
-                args.min_width, args.min_height,
+                args.min_width, args.min_height, output_root,
             )
         except RateLimitError as error:
             print(f"Scraping dihentikan agar tidak terus membebani Commons: {error}")

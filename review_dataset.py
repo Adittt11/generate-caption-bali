@@ -58,7 +58,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="Buat contact sheet dan CSV untuk memeriksa gambar per kategori."
     )
-    parser.add_argument("--image-root", default="scraping_image")
+    parser.add_argument("--image-root", default="dataset/images")
     parser.add_argument("--output-dir", default="data/review")
     parser.add_argument("--per-page", type=int, default=60)
     args = parser.parse_args()

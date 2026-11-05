@@ -18,10 +18,14 @@ Encoder CNN mengekstrak grid fitur visual. Decoder menghasilkan teks kata demi k
 dataset100/
 ├── api/                       # API FastAPI untuk model terlatih
 ├── data/                      # Dataset lokal, anotasi, review, dan split (tidak masuk Git)
+├── dataset/
+│   └── images/                # Gambar lokal per kategori (tidak masuk Git)
 ├── generate_caption/          # Generator caption Gemini dan inferensi CNN lokal
 ├── models/                    # CNN encoder, Transformer decoder, baseline LSTM
 ├── prompts/                   # Prompt pemeriksaan budaya dan caption
-├── scraping_image/            # Scraper + folder gambar per kategori (gambar tidak masuk Git)
+├── scraping_image/            # Kode scraper Wikimedia Commons
+├── scripts/
+│   └── organize_dataset.py     # Memindahkan dan menomori gambar per kategori
 ├── create_annotation_template.py
 ├── review_dataset.py
 ├── prepare_dataset.py
@@ -32,7 +36,7 @@ dataset100/
 └── README.md
 ```
 
-`data/`, gambar hasil scraping, cache, dan checkpoint adalah artefak lokal yang dikecualikan dari Git. File sumber kode, dokumentasi, dan `.env.example` yang tidak berisi API key dapat dimasukkan ke repository.
+`data/`, `dataset/images/`, cache, dan checkpoint adalah artefak lokal yang dikecualikan dari Git. File sumber kode, dokumentasi, dan `.env.example` yang tidak berisi API key dapat dimasukkan ke repository.
 
 ## 1. Persiapan environment
 
@@ -49,7 +53,14 @@ python -m pip install -r requirements.txt
 
 Skrip `scraping_image/scrap.py` menggunakan Wikimedia Commons Action API, bukan DDGS. Commons memberi halaman sumber dan metadata lisensi/pencipta untuk tiap gambar. Hasil yang lisensinya tidak dicantumkan atau tidak cocok dengan kategori dilewati. Target default 250 gambar Commons yang lolos filter relevansi per kategori.
 
-Scrape satu kategori:
+Rapikan dataset ke folder `dataset/images/` dan urutkan nama file per kategori. Perintah pertama hanya menampilkan rencana; tambahkan `--apply` untuk memindahkan dan mengganti nama file. Skrip juga menyesuaikan metadata, CSV anotasi/review, CSV caption, contact sheet, dan menyimpan peta nama lama-baru di `data/filename_rename_manifest.csv`.
+
+```bash
+python scripts/organize_dataset.py
+python scripts/organize_dataset.py --apply
+```
+
+Scrape satu kategori. Hasil disimpan ke `dataset/images/<kategori>/`:
 
 ```bash
 python scraping_image/scrap.py --category tari_bali --limit 250
@@ -74,7 +85,7 @@ Saat menerima HTTP 429, skrip mengikuti `Retry-After` atau memakai exponential b
 Sebelum anotasi, audit gambar yang sudah terkumpul. Skrip membuat contact sheet per folder serta CSV untuk mencatat keputusan. Buka contact sheet, isi `decision` di CSV dengan `keep`, `reject`, atau `review`, lalu koreksi `actual_category` bila gambar masuk kategori lain:
 
 ```bash
-python review_dataset.py --image-root scraping_image --output-dir data/review
+python review_dataset.py --image-root dataset/images --output-dir data/review
 ```
 
 Gunakan prompt pada `prompts/caption_prompt_id.md` untuk mengecek satu gambar atau membuat caption. Prompt meminta bukti bahwa gambar terkait Bali dan cocok dengan kategori, serta memberi status `keep`, `reject`, atau `review`.
@@ -82,7 +93,7 @@ Gunakan prompt pada `prompts/caption_prompt_id.md` untuk mengecek satu gambar at
 Buat lembar anotasi hanya dari gambar yang ditandai `keep`:
 
 ```bash
-python create_annotation_template.py --image-root scraping_image --review-csv data/review/review.csv --output data/annotations_curated.csv --captions-per-image 2
+python create_annotation_template.py --image-root dataset/images --review-csv data/review/review.csv --output data/annotations_curated.csv --captions-per-image 2
 ```
 
 Set API key Gemini sebagai environment variable. Jangan tulis API key langsung di kode atau commit ke GitHub:
@@ -176,7 +187,7 @@ Hasil disimpan dalam `metrics.json` dan `predictions.csv`. BLEU-4 dan ROUGE-L me
 Caption satu gambar:
 
 ```bash
-python generate_caption/caption.py scraping_image/topeng_bali/0001.jpg \
+python generate_caption/caption.py dataset/images/tari_bali/0001.jpg \
   --checkpoint outputs/cnn-transformer --beam-size 3
 ```
 

@@ -32,6 +32,8 @@ Thumbs.db
 /data/
 /outputs/
 /checkpoints/
+/dataset/images/*
+!/dataset/images/.gitkeep
 
 # Existing destination repository rules
 *.o

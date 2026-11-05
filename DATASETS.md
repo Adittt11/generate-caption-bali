@@ -1,6 +1,6 @@
 # Sumber dataset tambahan
 
-Dataset berikut cocok untuk menambah variasi gambar budaya Bali. Unduh hanya data yang diperlukan, simpan di `scraping_image/<nama_kategori>/`, dan catat sumber serta atribusi pada metadata proyek. Jangan unggah ulang gambar ke GitHub sebelum memeriksa ketentuan lisensi dan atribusi.
+Dataset berikut cocok untuk menambah variasi gambar budaya Bali. Unduh hanya data yang diperlukan, simpan di `dataset/images/<nama_kategori>/`, dan catat sumber serta atribusi pada metadata proyek. Jangan unggah ulang gambar ke GitHub sebelum memeriksa ketentuan lisensi dan atribusi.
 
 ## Rekomendasi utama
 
@@ -21,9 +21,9 @@ Skrip `scraping_image/scrap.py` mengambil gambar dari Wikimedia Commons melalui 
 
 ## Memasukkan gambar ke proyek
 
-1. Unduh arsip dari sumber dataset dan simpan di folder kategori, misalnya `scraping_image/topeng_bali/` atau `scraping_image/tekstil_bali/`.
+1. Unduh arsip dari sumber dataset dan simpan di folder kategori, misalnya `dataset/images/topeng_bali/` atau `dataset/images/tekstil_bali/`.
 2. Pertahankan label/aset sumber asli dan buat `metadata.csv` berisi minimal `image_id`, `category`, `source_url`, `license`, dan `creator`.
 3. Periksa gambar rusak, duplikat, label, serta atribusi. Hindari memasukkan gambar yang lisensinya tidak diketahui ke rilis publik.
-4. Jalankan `python create_annotation_template.py --image-root scraping_image --output data/annotations.csv --captions-per-image 2` untuk membuat lembar anotasi baru. Perintah ini tidak menimpa file anotasi yang sudah ada.
+4. Jalankan `python create_annotation_template.py --image-root dataset/images --output data/annotations.csv --captions-per-image 2` untuk membuat lembar anotasi baru. Perintah ini tidak menimpa file anotasi yang sudah ada.
 
 Folder gambar, file `.csv` metadata, dan data lokal dikecualikan oleh `.gitignore`. Simpan dataset besar di penyimpanan yang sesuai dan tautkan sumbernya di dokumentasi, alih-alih mengunggah ulang tanpa memeriksa hak distribusi.
