@@ -1,0 +1,10 @@
+requests
+Pillow>=10.0
+torch>=2.4
+torchvision>=0.19
+google-genai>=1.0
+fastapi>=0.110
+uvicorn[standard]>=0.27
+python-multipart>=0.0.9
+sacrebleu>=2.4
+rouge-score>=0.1.2

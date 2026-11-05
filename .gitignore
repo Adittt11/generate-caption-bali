@@ -1,0 +1,38 @@
+# Secrets
+.env
+**/.env
+.env.*
+!**/.env.example
+
+# Local Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+
+# Downloaded image datasets and generated metadata/captions
+*.jpg
+*.jpeg
+*.png
+*.webp
+*.tif
+*.tiff
+**/metadata.csv
+**/*gemini*caption*.csv
+**/*qwen*caption*.csv
+
+# Local data, annotations, generated outputs, and trained model checkpoints
+/data/
+/outputs/
+/checkpoints/
+
+# Existing destination repository rules
+*.o
+*.ali
